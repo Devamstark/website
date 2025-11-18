@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - StockAnalyzer Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-navy: #0B1426;
+            --electric-blue: #00D4FF;
+            --soft-mint: #E6FAF5;
+            --warm-gray: #F8F9FA;
+            --success-green: #10B981;
+            --alert-red: #EF4444;
+            --warning-amber: #F59E0B;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-navy);
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .dashboard-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #1a2332 100%);
+            z-index: -2;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--electric-blue) 0%, var(--soft-mint) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--electric-blue);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--electric-blue);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .search-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 8px 16px;
+            color: white;
+            transition: all 0.3s ease;
+            width: 250px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--electric-blue);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+        
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--electric-blue) 0%, #0099CC 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+        
+        .widget {
+            transition: all 0.3s ease;
+            cursor: move;
+        }
+        
+        .widget:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.15);
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+        
+        .stock-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .stock-row:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px 8px;
+        }
+        
+        .market-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .market-up {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success-green);
+        }
+        
+        .market-down {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--alert-red);
+        }
+        
+        .chart-container {
+            height: 300px;
+            width: 100%;
+        }
+        
+        .news-item {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .news-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .sentiment-positive {
+            color: var(--success-green);
+        }
+        
+        .sentiment-negative {
+            color: var(--alert-red);
+        }
+        
+        .sentiment-neutral {
+            color: var(--warning-amber);
+        }
+        
+        .watchlist-item {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .watchlist-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .portfolio-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .alert-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 4px solid var(--electric-blue);
+            background: rgba(0, 212, 255, 0.1);
+        }
+        
+        .loading-skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-bg"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-card mx-4 mt-4 px-6 py-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-8">
+                <h1 class="text-xl font-bold gradient-text">StockAnalyzer Pro</h1>
+                <div class="hidden md:flex space-x-6">
+                    <a href="index.html" class="nav-link text-white hover:text-blue-400">Home</a>
+                    <a href="#" class="nav-link text-blue-400 font-semibold">Dashboard</a>
+                    <a href="analytics.html" class="nav-link text-white hover:text-blue-400">Analytics</a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <input type="text" class="search-input" placeholder="Search stocks..." id="dashboardSearch">
+                <button class="btn-primary">Export</button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Dashboard Content -->
+    <main class="pt-24 px-4 pb-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Dashboard Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold gradient-text mb-2">Trading Dashboard</h1>
+                <p class="text-gray-400">Real-time market data and portfolio insights</p>
+            </div>
+            
+            <!-- Portfolio Summary -->
+            <div class="portfolio-summary mb-8">
+                <div class="metric-card">
+                    <div class="text-2xl font-bold gradient-text mb-1" id="portfolioValue">₹12,45,678</div>
+                    <div class="text-sm text-gray-400 mb-2">Portfolio Value</div>
+                    <div class="market-indicator market-up">
+                        <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                        +5.67%
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="text-2xl font-bold gradient-text mb-1" id="dayChange">+₹67,890</div>
+                    <div class="text-sm text-gray-400 mb-2">Today's Change</div>
+                    <div class="market-indicator market-up">
+                        <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                        +2.34%
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="text-2xl font-bold gradient-text mb-1" id="totalReturn">+₹2,34,567</div>
+                    <div class="text-sm text-gray-400 mb-2">Total Return</div>
+                    <div class="market-indicator market-up">
+                        <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                        +18.92%
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="text-2xl font-bold gradient-text mb-1" id="cashAvailable">₹1,23,456</div>
+                    <div class="text-sm text-gray-400 mb-2">Cash Available</div>
+                    <div class="text-xs text-gray-500">9.89% of portfolio</div>
+                </div>
+            </div>
+            
+            <!-- Main Dashboard Grid -->
+            <div class="grid lg:grid-cols-3 gap-6">
+                <!-- Left Column -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Market Chart -->
+                    <div class="glass-card p-6 widget">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold">Market Overview</h3>
+                            <div class="flex space-x-2">
+                                <button class="btn-primary text-xs px-3 py-1">1D</button>
+                                <button class="btn-primary text-xs px-3 py-1">1W</button>
+                                <button class="btn-primary text-xs px-3 py-1">1M</button>
+                                <button class="btn-primary text-xs px-3 py-1">1Y</button>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="mainChart"></div>
+                    </div>
+                    
+                    <!-- Holdings Table -->
+                    <div class="glass-card p-6 widget">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold">My Holdings</h3>
+                            <button class="btn-primary text-xs">Add Stock</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <div class="stock-row font-semibold text-gray-400 text-sm">
+                                <div>Company</div>
+                                <div>Quantity</div>
+                                <div>Avg. Price</div>
+                                <div>Current</div>
+                                <div>P&L</div>
+                            </div>
+                            <div id="holdingsTable">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Market News -->
+                    <div class="glass-card p-6 widget">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold">Market News</h3>
+                            <button class="btn-primary text-xs">View All</button>
+                        </div>
+                        <div id="marketNews">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column -->
+                <div class="space-y-6">
+                    <!-- Watchlist -->
+                    <div class="glass-card p-6 widget">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold">Watchlist</h3>
+                            <button class="btn-primary text-xs">+ Add</button>
+                        </div>
+                        <div id="watchlist">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Alerts -->
+                    <div class="glass-card p-6 widget">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold">Alerts</h3>
+                            <button class="btn-primary text-xs">Create Alert</button>
+                        </div>
+                        <div id="alertsList">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Sector Performance -->
+                    <div class="glass-card p-6 widget">
+                        <h3 class="text-xl font-bold mb-6">Sector Performance</h3>
+                        <div class="chart-container" id="sectorChart" style="height: 250px;"></div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="glass-card p-6 widget">
+                        <h3 class="text-xl font-bold mb-6">Quick Actions</h3>
+                        <div class="space-y-3">
+                            <button class="w-full btn-primary text-left">Buy Stock</button>
+                            <button class="w-full btn-primary text-left">Sell Stock</button>
+                            <button class="w-full btn-primary text-left">Set Alert</button>
+                            <button class="w-full btn-primary text-left">Export Portfolio</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="main.js"></script>
+    <script>
+        // Initialize dashboard-specific functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            initDashboard();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - StockAnalyzer Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-navy: #0B1426;
+            --electric-blue: #00D4FF;
+            --soft-mint: #E6FAF5;
+            --warm-gray: #F8F9FA;
+            --success-green: #10B981;
+            --alert-red: #EF4444;
+            --warning-amber: #F59E0B;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-navy);
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .analytics-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #1a2332 100%);
+            z-index: -2;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--electric-blue) 0%, var(--soft-mint) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--electric-blue);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--electric-blue);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .search-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 8px 16px;
+            color: white;
+            transition: all 0.3s ease;
+            width: 250px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--electric-blue);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+        
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--electric-blue) 0%, #0099CC 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--electric-blue);
+        }
+        
+        .analysis-card {
+            transition: all 0.3s ease;
+        }
+        
+        .analysis-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.15);
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .metric-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+        
+        .comparison-table {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .comparison-header {
+            font-weight: 600;
+            color: var(--electric-blue);
+            padding: 12px 0;
+            border-bottom: 2px solid var(--electric-blue);
+        }
+        
+        .comparison-row {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .comparison-row:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px 8px;
+        }
+        
+        .technical-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .indicator-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+        
+        .indicator-buy {
+            color: var(--success-green);
+        }
+        
+        .indicator-sell {
+            color: var(--alert-red);
+        }
+        
+        .indicator-hold {
+            color: var(--warning-amber);
+        }
+        
+        .chart-container {
+            height: 400px;
+            width: 100%;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .filter-tab.active {
+            background: var(--electric-blue);
+            border-color: var(--electric-blue);
+        }
+        
+        .filter-tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .analysis-insight {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 4px solid var(--electric-blue);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .risk-meter {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .risk-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .risk-low {
+            background: var(--success-green);
+        }
+        
+        .risk-medium {
+            background: var(--warning-amber);
+        }
+        
+        .risk-high {
+            background: var(--alert-red);
+        }
+        
+        .export-options {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .loading-skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="analytics-bg"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-card mx-4 mt-4 px-6 py-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-8">
+                <h1 class="text-xl font-bold gradient-text">StockAnalyzer Pro</h1>
+                <div class="hidden md:flex space-x-6">
+                    <a href="index.html" class="nav-link text-white hover:text-blue-400">Home</a>
+                    <a href="dashboard.html" class="nav-link text-white hover:text-blue-400">Dashboard</a>
+                    <a href="#" class="nav-link text-blue-400 font-semibold">Analytics</a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <input type="text" class="search-input" placeholder="Search stocks..." id="analyticsSearch">
+                <button class="btn-primary">Export Report</button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Analytics Content -->
+    <main class="pt-24 px-4 pb-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Page Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold gradient-text mb-2">Advanced Analytics</h1>
+                <p class="text-gray-400">Deep insights and comprehensive market analysis</p>
+            </div>
+            
+            <!-- Analysis Filters -->
+            <div class="filter-tabs mb-8">
+                <div class="filter-tab active" data-filter="overview">Overview</div>
+                <div class="filter-tab" data-filter="technical">Technical Analysis</div>
+                <div class="filter-tab" data-filter="comparison">Stock Comparison</div>
+                <div class="filter-tab" data-filter="sector">Sector Analysis</div>
+                <div class="filter-tab" data-filter="risk">Risk Assessment</div>
+            </div>
+            
+            <!-- Main Analysis Content -->
+            <div class="space-y-8">
+                <!-- Overview Section -->
+                <div id="overview-section" class="analysis-section">
+                    <!-- Key Metrics -->
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="text-2xl font-bold gradient-text mb-1" id="marketCap">₹284.7T</div>
+                            <div class="text-sm text-gray-400 mb-2">Total Market Cap</div>
+                            <div class="text-xs text-green-400">+2.34% from last week</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="text-2xl font-bold gradient-text mb-1" id="tradingVolume">₹45.2B</div>
+                            <div class="text-sm text-gray-400 mb-2">Daily Volume</div>
+                            <div class="text-xs text-green-400">+12.8% from yesterday</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="text-2xl font-bold gradient-text mb-1" id="activeStocks">1,847</div>
+                            <div class="text-sm text-gray-400 mb-2">Active Stocks</div>
+                            <div class="text-xs text-gray-500">Across NSE & BSE</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="text-2xl font-bold gradient-text mb-1" id="volatilityIndex">18.45</div>
+                            <div class="text-sm text-gray-400 mb-2">Volatility Index</div>
+                            <div class="text-xs text-amber-400">Moderate risk level</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Market Overview Chart -->
+                    <div class="glass-card p-6 analysis-card">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold">Market Performance Overview</h3>
+                            <div class="flex space-x-2">
+                                <button class="btn-secondary text-xs">1M</button>
+                                <button class="btn-primary text-xs">3M</button>
+                                <button class="btn-secondary text-xs">6M</button>
+                                <button class="btn-secondary text-xs">1Y</button>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="overviewChart"></div>
+                        <div class="analysis-insight">
+                            <h4 class="font-semibold mb-2">💡 Market Insight</h4>
+                            <p class="text-sm text-gray-300">
+                                The market has shown strong bullish momentum over the past quarter with the NIFTY 50 gaining 8.7%. 
+                                Technology and healthcare sectors are leading the rally, while traditional sectors show moderate growth.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Technical Analysis Section -->
+                <div id="technical-section" class="analysis-section hidden">
+                    <div class="grid lg:grid-cols-2 gap-6">
+                        <!-- Technical Indicators -->
+                        <div class="glass-card p-6 analysis-card">
+                            <h3 class="text-xl font-bold mb-6">Technical Indicators</h3>
+                            <div id="technicalIndicators">
+                                <div class="technical-indicator">
+                                    <span>RSI (14)</span>
+                                    <span class="indicator-value indicator-buy">67.8 - Buy</span>
+                                </div>
+                                <div class="technical-indicator">
+                                    <span>MACD</span>
+                                    <span class="indicator-value indicator-buy">Bullish Crossover</span>
+                                </div>
+                                <div class="technical-indicator">
+                                    <span>Moving Average (50)</span>
+                                    <span class="indicator-value indicator-buy">Above MA</span>
+                                </div>
+                                <div class="technical-indicator">
+                                    <span>Bollinger Bands</span>
+                                    <span class="indicator-value indicator-hold">Mid Band</span>
+                                </div>
+                                <div class="technical-indicator">
+                                    <span>Stochastic</span>
+                                    <span class="indicator-value indicator-sell">78.2 - Sell</span>
+                                </div>
+                                <div class="technical-indicator">
+                                    <span>ADX</span>
+                                    <span class="indicator-value indicator-buy">Strong Trend</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Price Analysis Chart -->
+                        <div class="glass-card p-6 analysis-card">
+                            <h3 class="text-xl font-bold mb-6">Price Action Analysis</h3>
+                            <div class="chart-container" id="technicalChart" style="height: 300px;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stock Comparison Section -->
+                <div id="comparison-section" class="analysis-section hidden">
+                    <div class="glass-card p-6 analysis-card">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold">Stock Comparison</h3>
+                            <button class="btn-primary text-xs">Add Stock</button>
+                        </div>
+                        
+                        <div class="comparison-table">
+                            <div class="comparison-header">Stock</div>
+                            <div class="comparison-header">Price</div>
+                            <div class="comparison-header">Change</div>
+                            <div class="comparison-header">Market Cap</div>
+                            <div class="comparison-header">P/E Ratio</div>
+                            <div class="comparison-header">Volume</div>
+                        </div>
+                        
+                        <div id="comparisonTable">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                        
+                        <div class="chart-container mt-6" id="comparisonChart"></div>
+                    </div>
+                </div>
+                
+                <!-- Sector Analysis Section -->
+                <div id="sector-section" class="analysis-section hidden">
+                    <div class="grid lg:grid-cols-2 gap-6">
+                        <!-- Sector Performance -->
+                        <div class="glass-card p-6 analysis-card">
+                            <h3 class="text-xl font-bold mb-6">Sector Performance</h3>
+                            <div class="chart-container" id="sectorChart"></div>
+                        </div>
+                        
+                        <!-- Sector Details -->
+                        <div class="glass-card p-6 analysis-card">
+                            <h3 class="text-xl font-bold mb-6">Sector Details</h3>
+                            <div id="sectorDetails">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Risk Assessment Section -->
+                <div id="risk-section" class="analysis-section hidden">
+                    <div class="grid lg:grid-cols-2 gap-6">
+                        <!-- Portfolio Risk -->
+                        <div class="glass-card p-6 analysis-card">
+                            <h3 class="text-xl font-bold mb-6">Portfolio Risk Assessment</h3>
+                            
+                            <div class="mb-6">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span>Overall Risk Score</span>
+                                    <span class="font-bold text-amber-400">6.7/10</span>
+                                </div>
+                                <div class="risk-meter">
+                                    <div class="risk-fill risk-medium" style="width: 67%;"></div>
+                                </div>
+                                <p class="text-sm text-gray-400 mt-2">Moderate risk level - well diversified portfolio</p>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span>Market Risk</span>
+                                        <span class="text-red-400">High</span>
+                                    </div>
+                                    <div class="risk-meter">
+                                        <div class="risk-fill risk-high" style="width: 78%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span>Sector Risk</span>
+                                        <span class="text-amber-400">Medium</span>
+                                    </div>
+                                    <div class="risk-meter">
+                                        <div class="risk-fill risk-medium" style="width: 45%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span>Liquidity Risk</span>
+                                        <span class="text-green-400">Low</span>
+                                    </div>
+                                    <div class="risk-meter">
+                                        <div class="risk-fill risk-low" style="width: 23%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Risk Recommendations -->
+                        <div class="glass-card p-6 analysis-card">
+                            <h3 class="text-xl font-bold mb-6">Risk Recommendations</h3>
+                            
+                            <div class="space-y-4">
+                                <div class="analysis-insight">
+                                    <h4 class="font-semibold mb-2">🎯 Diversification</h4>
+                                    <p class="text-sm text-gray-300">
+                                        Consider adding more defensive stocks to balance high-growth holdings. 
+                                        Current allocation shows 65% in growth stocks.
+                                    </p>
+                                </div>
+                                
+                                <div class="analysis-insight">
+                                    <h4 class="font-semibold mb-2">⚖️ Rebalancing</h4>
+                                    <p class="text-sm text-gray-300">
+                                        Portfolio has drifted from target allocation. Technology sector overweight by 15%. 
+                                        Consider rebalancing quarterly.
+                                    </p>
+                                </div>
+                                
+                                <div class="analysis-insight">
+                                    <h4 class="font-semibold mb-2">🛡️ Hedging</h4>
+                                    <p class="text-sm text-gray-300">
+                                        Market volatility is increasing. Consider adding hedging instruments 
+                                        like index puts or defensive ETFs.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="export-options">
+                                <button class="btn-primary">Generate Report</button>
+                                <button class="btn-secondary">Schedule Review</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="main.js"></script>
+    <script>
+        // Initialize analytics-specific functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            initAnalytics();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockAnalyzer Pro - Advanced Financial Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-navy: #0B1426;
+            --electric-blue: #00D4FF;
+            --soft-mint: #E6FAF5;
+            --warm-gray: #F8F9FA;
+            --success-green: #10B981;
+            --alert-red: #EF4444;
+            --warning-amber: #F59E0B;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-navy);
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: url('resources/hero-bg.jpg') center/cover;
+            z-index: -2;
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, rgba(11, 20, 38, 0.9) 0%, rgba(11, 20, 38, 0.7) 100%);
+            z-index: -1;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--electric-blue) 0%, var(--soft-mint) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .stock-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .stock-card:hover {
+            transform: translateY(-8px) rotateX(5deg);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--electric-blue);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--electric-blue);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .search-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px 20px;
+            color: white;
+            transition: all 0.3s ease;
+            width: 300px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--electric-blue);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+        
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--electric-blue) 0%, #0099CC 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+        
+        .ticker-item {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: ticker-scroll 30s linear infinite;
+        }
+        
+        @keyframes ticker-scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .reveal-element {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .reveal-element.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid var(--electric-blue);
+            white-space: nowrap;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: var(--electric-blue); }
+        }
+        
+        .splide__slide img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--electric-blue) 0%, var(--soft-mint) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        
+        .market-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .market-up {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success-green);
+        }
+        
+        .market-down {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--alert-red);
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <canvas class="particle-canvas" id="particleCanvas"></canvas>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-card mx-4 mt-4 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-8">
+                <h1 class="text-2xl font-bold gradient-text">StockAnalyzer Pro</h1>
+                <div class="hidden md:flex space-x-6">
+                    <a href="#" class="nav-link text-white hover:text-blue-400">Home</a>
+                    <a href="dashboard.html" class="nav-link text-white hover:text-blue-400">Dashboard</a>
+                    <a href="analytics.html" class="nav-link text-white hover:text-blue-400">Analytics</a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search stocks..." id="searchInput">
+                </div>
+                <button class="btn-primary">Get Started</button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center pt-20 px-4">
+        <div class="max-w-6xl mx-auto text-center">
+            <h1 class="text-6xl md:text-8xl font-bold mb-6">
+                <span class="typewriter gradient-text" id="heroText">Smart Stock Analysis</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
+                Advanced financial intelligence for Indian markets. Real-time data, AI-powered insights, and comprehensive analysis tools for informed investment decisions.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+                <div class="search-container">
+                    <input type="text" class="search-input w-80" placeholder="Search by symbol, company, or sector..." id="heroSearch">
+                </div>
+                <button class="btn-primary text-lg px-8 py-4" onclick="performSearch()">
+                    Analyze Now
+                </button>
+            </div>
+            
+            <!-- Market Ticker -->
+            <div class="glass-card p-4 mb-12">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">Market Overview</h3>
+                    <span class="market-indicator market-up">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        Live
+                    </span>
+                </div>
+                <div class="flex overflow-hidden">
+                    <div class="flex space-x-8 animate-pulse" id="marketTicker">
+                        <!-- Ticker items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 reveal-element">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6 gradient-text">Powerful Features</h2>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                    Comprehensive tools for modern investors. From real-time data to advanced analytics, everything you need in one platform.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass-card p-8 reveal-element feature-card">
+                    <div class="feature-icon">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Real-Time Data</h3>
+                    <p class="text-gray-300 mb-6">Live market data from NSE and BSE with millisecond updates. Never miss a trading opportunity with our advanced data feeds.</p>
+                    <div class="flex items-center text-blue-400 font-semibold">
+                        <span>Learn More</span>
+                        <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="glass-card p-8 reveal-element feature-card">
+                    <div class="feature-icon">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Advanced Analytics</h3>
+                    <p class="text-gray-300 mb-6">AI-powered insights with technical indicators, sentiment analysis, and predictive modeling for smarter investment decisions.</p>
+                    <div class="flex items-center text-blue-400 font-semibold">
+                        <span>Explore Analytics</span>
+                        <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="glass-card p-8 reveal-element feature-card">
+                    <div class="feature-icon">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Portfolio Tracking</h3>
+                    <p class="text-gray-300 mb-6">Comprehensive portfolio management with performance tracking, risk analysis, and personalized recommendations.</p>
+                    <div class="flex items-center text-blue-400 font-semibold">
+                        <span>Start Tracking</span>
+                        <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Top Movers Section -->
+    <section class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 reveal-element">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6 gradient-text">Today's Top Movers</h2>
+                <p class="text-xl text-gray-300">Real-time market leaders and trending stocks</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Top Gainers -->
+                <div class="glass-card p-6 reveal-element">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-green-400">Top Gainers</h3>
+                        <span class="market-indicator market-up">📈</span>
+                    </div>
+                    <div class="space-y-4" id="topGainers">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Top Losers -->
+                <div class="glass-card p-6 reveal-element">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-red-400">Top Losers</h3>
+                        <span class="market-indicator market-down">📉</span>
+                    </div>
+                    <div class="space-y-4" id="topLosers">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Market Data Visualization -->
+    <section class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 reveal-element">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6 gradient-text">Market Intelligence</h2>
+                <p class="text-xl text-gray-300">Advanced data visualization and insights</p>
+            </div>
+            
+            <div class="glass-card p-8 reveal-element">
+                <div class="grid md:grid-cols-3 gap-8 mb-8">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold gradient-text mb-2" id="sensexValue">₹67,847.23</div>
+                        <div class="text-gray-400">SENSEX</div>
+                        <div class="market-indicator market-up mt-2">+1.24%</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold gradient-text mb-2" id="niftyValue">₹20,123.45</div>
+                        <div class="text-gray-400">NIFTY 50</div>
+                        <div class="market-indicator market-up mt-2">+0.89%</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold gradient-text mb-2" id="volumeValue">₹2.4T</div>
+                        <div class="text-gray-400">Trading Volume</div>
+                        <div class="market-indicator market-up mt-2">+15.6%</div>
+                    </div>
+                </div>
+                
+                <div class="h-96" id="marketChart">
+                    <!-- Chart will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-12 px-4 border-t border-gray-800">
+        <div class="max-w-6xl mx-auto text-center">
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold gradient-text mb-4">StockAnalyzer Pro</h3>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    Advanced financial intelligence platform for modern investors. Real-time data, AI insights, and comprehensive analysis tools.
+                </p>
+            </div>
+            <div class="border-t border-gray-800 pt-8">
+                <p class="text-gray-500">© 2025 StockAnalyzer Pro. All rights reserved. Built with modern web technologies.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="main.js"></script>
+</body>
+</html>

@@ -3,450 +3,868 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StockAnalyzer Pro - Advanced Financial Intelligence</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
-    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
+    <title>StockVision Pro | Modern Stock Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-navy: #0B1426;
-            --electric-blue: #00D4FF;
-            --soft-mint: #E6FAF5;
-            --warm-gray: #F8F9FA;
-            --success-green: #10B981;
-            --alert-red: #EF4444;
-            --warning-amber: #F59E0B;
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #4cc9f0;
+            --dark: #1a1a2e;
+            --darker: #0d0d1a;
+            --light: #f8f9fa;
+            --success: #4ade80;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --glow: 0 0 15px rgba(67, 97, 238, 0.3);
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--primary-navy);
-            color: white;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            min-height: 100vh;
             overflow-x: hidden;
         }
-        
-        .hero-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: url('resources/hero-bg.jpg') center/cover;
-            z-index: -2;
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
-        
-        .hero-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: linear-gradient(135deg, rgba(11, 20, 38, 0.9) 0%, rgba(11, 20, 38, 0.7) 100%);
-            z-index: -1;
-        }
-        
-        .gradient-text {
-            background: linear-gradient(135deg, var(--electric-blue) 0%, var(--soft-mint) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
+
+        /* Header & Navigation */
+        header {
+            background: rgba(26, 26, 46, 0.8);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: var(--transition);
         }
-        
-        .stock-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
         }
-        
-        .stock-card:hover {
-            transform: translateY(-8px) rotateX(5deg);
-            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--light);
+            text-decoration: none;
         }
-        
-        .nav-link {
+
+        .logo i {
+            color: var(--accent);
+            font-size: 1.8rem;
+        }
+
+        .logo span {
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: var(--transition);
             position: relative;
-            transition: all 0.3s ease;
+            overflow: hidden;
         }
-        
-        .nav-link:hover {
-            color: var(--electric-blue);
+
+        nav a:hover, nav a.active {
+            color: var(--accent);
+            background: rgba(67, 97, 238, 0.1);
         }
-        
-        .nav-link::after {
+
+        nav a::after {
             content: '';
             position: absolute;
-            bottom: -4px;
+            bottom: 0;
             left: 0;
             width: 0;
             height: 2px;
-            background: var(--electric-blue);
-            transition: width 0.3s ease;
+            background: var(--accent);
+            transition: var(--transition);
         }
-        
-        .nav-link:hover::after {
+
+        nav a:hover::after, nav a.active::after {
             width: 100%;
         }
-        
-        .search-container {
-            position: relative;
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-        
-        .search-input {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 12px 20px;
-            color: white;
-            transition: all 0.3s ease;
-            width: 300px;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: var(--electric-blue);
-            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
-        }
-        
-        .search-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--electric-blue) 0%, #0099CC 100%);
-            border: none;
-            border-radius: 12px;
-            padding: 12px 24px;
-            color: white;
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            border: none;
+            outline: none;
         }
-        
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
         .btn-primary:hover {
+            background: var(--secondary);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+            box-shadow: var(--glow);
         }
-        
-        .ticker-item {
-            display: inline-block;
-            padding: 8px 16px;
-            margin: 4px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            animation: ticker-scroll 30s linear infinite;
+
+        .btn-outline {
+            background: transparent;
+            color: var(--light);
+            border: 1px solid var(--primary);
         }
-        
-        @keyframes ticker-scroll {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
+
+        .btn-outline:hover {
+            background: rgba(67, 97, 238, 0.1);
+            transform: translateY(-2px);
         }
-        
-        .particle-canvas {
+
+        /* Hero Section */
+        .hero {
+            padding: 100px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(67, 97, 238, 0.1) 0%, transparent 70%);
+            animation: pulse 15s infinite linear;
             z-index: -1;
         }
-        
-        .reveal-element {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s ease;
+
+        @keyframes pulse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-        
-        .reveal-element.revealed {
-            opacity: 1;
-            transform: translateY(0);
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: fadeInUp 1s ease-out;
         }
-        
-        .typewriter {
-            overflow: hidden;
-            border-right: 2px solid var(--electric-blue);
-            white-space: nowrap;
-            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            color: rgba(255, 255, 255, 0.8);
+            animation: fadeInUp 1s ease-out 0.2s both;
         }
-        
-        @keyframes typing {
-            from { width: 0; }
-            to { width: 100%; }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            animation: fadeInUp 1s ease-out 0.4s both;
         }
-        
-        @keyframes blink-caret {
-            from, to { border-color: transparent; }
-            50% { border-color: var(--electric-blue); }
+
+        /* Dashboard Section */
+        .dashboard {
+            padding: 80px 0;
         }
-        
-        .splide__slide img {
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
             width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 12px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
         }
-        
-        .feature-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, var(--electric-blue) 0%, var(--soft-mint) 100%);
-            border-radius: 16px;
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 16px;
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--accent);
+            font-size: 1.5rem;
         }
-        
-        .market-indicator {
-            display: inline-flex;
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-change {
+            font-size: 0.9rem;
+            display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
+            gap: 5px;
         }
-        
-        .market-up {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--success-green);
+
+        .positive {
+            color: var(--success);
         }
-        
-        .market-down {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--alert-red);
+
+        .negative {
+            color: var(--danger);
+        }
+
+        .chart-container {
+            height: 250px;
+            margin-top: 20px;
+        }
+
+        /* Portfolio Section */
+        .portfolio {
+            padding: 80px 0;
+        }
+
+        .portfolio-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            width: 300px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 15px;
+            background: transparent;
+            border: none;
+            color: var(--light);
+            outline: none;
+        }
+
+        .search-bar button {
+            padding: 0 15px;
+            background: var(--primary);
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(67, 97, 238, 0.2);
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+
+        tbody tr:hover {
+            background: rgba(67, 97, 238, 0.1);
+        }
+
+        .stock-symbol {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stock-logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(13, 13, 26, 0.8);
+            padding: 60px 0 30px;
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-column a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-column a:hover {
+            color: var(--accent);
+            padding-left: 5px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            nav ul {
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .portfolio-actions {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            th, td {
+                padding: 10px 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Background Elements -->
-    <div class="hero-bg"></div>
-    <div class="hero-overlay"></div>
-    <canvas class="particle-canvas" id="particleCanvas"></canvas>
-    
-    <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 glass-card mx-4 mt-4 px-6 py-4">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-8">
-                <h1 class="text-2xl font-bold gradient-text">StockAnalyzer Pro</h1>
-                <div class="hidden md:flex space-x-6">
-                    <a href="#" class="nav-link text-white hover:text-blue-400">Home</a>
-                    <a href="dashboard.html" class="nav-link text-white hover:text-blue-400">Dashboard</a>
-                    <a href="analytics.html" class="nav-link text-white hover:text-blue-400">Analytics</a>
-                </div>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Search stocks..." id="searchInput">
-                </div>
-                <button class="btn-primary">Get Started</button>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <a href="#" class="logo">
+                <i class="fas fa-chart-line"></i>
+                Stock<span>Vision</span> Pro
+            </a>
+            
+            <nav>
+                <ul>
+                    <li><a href="#" class="active">Dashboard</a></li>
+                    <li><a href="#">Stocks</a></li>
+                    <li><a href="#">Portfolio</a></li>
+                    <li><a href="#">News</a></li>
+                    <li><a href="#">Research</a></li>
+                </ul>
+            </nav>
+            
+            <div class="user-actions">
+                <button class="btn btn-outline"><i class="fas fa-bell"></i></button>
+                <button class="btn btn-primary">Sign In</button>
             </div>
         </div>
-    </nav>
-    
+    </header>
+
     <!-- Hero Section -->
-    <section class="min-h-screen flex items-center justify-center pt-20 px-4">
-        <div class="max-w-6xl mx-auto text-center">
-            <h1 class="text-6xl md:text-8xl font-bold mb-6">
-                <span class="typewriter gradient-text" id="heroText">Smart Stock Analysis</span>
-            </h1>
-            <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-                Advanced financial intelligence for Indian markets. Real-time data, AI-powered insights, and comprehensive analysis tools for informed investment decisions.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-                <div class="search-container">
-                    <input type="text" class="search-input w-80" placeholder="Search by symbol, company, or sector..." id="heroSearch">
-                </div>
-                <button class="btn-primary text-lg px-8 py-4" onclick="performSearch()">
-                    Analyze Now
-                </button>
+    <section class="hero">
+        <div class="container">
+            <h1>Advanced Stock Analysis Made Simple</h1>
+            <p>Powerful tools, real-time data, and intuitive portfolio management to help you make smarter investment decisions.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary">Get Started Free</button>
+                <button class="btn btn-outline">Watch Demo</button>
             </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard">
+        <div class="container">
+            <h2 class="section-title">Market Dashboard</h2>
             
-            <!-- Market Ticker -->
-            <div class="glass-card p-4 mb-12">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold">Market Overview</h3>
-                    <span class="market-indicator market-up">
-                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        Live
-                    </span>
+            <div class="dashboard-grid">
+                <!-- Card 1 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Portfolio Value</div>
+                        <div class="card-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">$124,560.75</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+2.35% Today</span>
+                    </div>
+                    <div class="chart-container" id="portfolio-chart">
+                        <!-- Chart would be rendered here with JavaScript -->
+                    </div>
                 </div>
-                <div class="flex overflow-hidden">
-                    <div class="flex space-x-8 animate-pulse" id="marketTicker">
-                        <!-- Ticker items will be populated by JavaScript -->
+                
+                <!-- Card 2 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">S&P 500</div>
+                        <div class="card-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">4,567.25</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+0.68% Today</span>
+                    </div>
+                    <div class="chart-container" id="sp500-chart">
+                        <!-- Chart would be rendered here with JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">NASDAQ</div>
+                        <div class="card-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">14,253.67</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>-0.42% Today</span>
+                    </div>
+                    <div class="chart-container" id="nasdaq-chart">
+                        <!-- Chart would be rendered here with JavaScript -->
                     </div>
                 </div>
             </div>
         </div>
     </section>
-    
-    <!-- Features Section -->
-    <section class="py-20 px-4">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16 reveal-element">
-                <h2 class="text-4xl md:text-5xl font-bold mb-6 gradient-text">Powerful Features</h2>
-                <p class="text-xl text-gray-300 max-w-3xl mx-auto">
-                    Comprehensive tools for modern investors. From real-time data to advanced analytics, everything you need in one platform.
-                </p>
+
+    <!-- Portfolio Section -->
+    <section class="portfolio">
+        <div class="container">
+            <h2 class="section-title">Your Portfolio</h2>
+            
+            <div class="portfolio-actions">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search stocks...">
+                    <button><i class="fas fa-search"></i></button>
+                </div>
+                <div>
+                    <button class="btn btn-primary"><i class="fas fa-plus"></i> Add Stock</button>
+                </div>
             </div>
             
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="glass-card p-8 reveal-element feature-card">
-                    <div class="feature-icon">
-                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4">Real-Time Data</h3>
-                    <p class="text-gray-300 mb-6">Live market data from NSE and BSE with millisecond updates. Never miss a trading opportunity with our advanced data feeds.</p>
-                    <div class="flex items-center text-blue-400 font-semibold">
-                        <span>Learn More</span>
-                        <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-                        </svg>
-                    </div>
-                </div>
-                
-                <div class="glass-card p-8 reveal-element feature-card">
-                    <div class="feature-icon">
-                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4">Advanced Analytics</h3>
-                    <p class="text-gray-300 mb-6">AI-powered insights with technical indicators, sentiment analysis, and predictive modeling for smarter investment decisions.</p>
-                    <div class="flex items-center text-blue-400 font-semibold">
-                        <span>Explore Analytics</span>
-                        <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-                        </svg>
-                    </div>
-                </div>
-                
-                <div class="glass-card p-8 reveal-element feature-card">
-                    <div class="feature-icon">
-                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-4">Portfolio Tracking</h3>
-                    <p class="text-gray-300 mb-6">Comprehensive portfolio management with performance tracking, risk analysis, and personalized recommendations.</p>
-                    <div class="flex items-center text-blue-400 font-semibold">
-                        <span>Start Tracking</span>
-                        <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-                        </svg>
-                    </div>
-                </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stock</th>
+                            <th>Price</th>
+                            <th>Change</th>
+                            <th>Shares</th>
+                            <th>Value</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="stock-symbol">
+                                    <div class="stock-logo">AAPL</div>
+                                    <div>Apple Inc.</div>
+                                </div>
+                            </td>
+                            <td>$175.43</td>
+                            <td class="positive">+1.24%</td>
+                            <td>25</td>
+                            <td>$4,385.75</td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem;">Trade</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="stock-symbol">
+                                    <div class="stock-logo">MSFT</div>
+                                    <div>Microsoft Corp.</div>
+                                </div>
+                            </td>
+                            <td>$335.67</td>
+                            <td class="positive">+0.87%</td>
+                            <td>15</td>
+                            <td>$5,035.05</td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem;">Trade</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="stock-symbol">
+                                    <div class="stock-logo">TSLA</div>
+                                    <div>Tesla Inc.</div>
+                                </div>
+                            </td>
+                            <td>$245.18</td>
+                            <td class="negative">-2.15%</td>
+                            <td>30</td>
+                            <td>$7,355.40</td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem;">Trade</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="stock-symbol">
+                                    <div class="stock-logo">AMZN</div>
+                                    <div>Amazon.com Inc.</div>
+                                </div>
+                            </td>
+                            <td>$145.22</td>
+                            <td class="positive">+0.45%</td>
+                            <td>40</td>
+                            <td>$5,808.80</td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem;">Trade</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="stock-symbol">
+                                    <div class="stock-logo">GOOGL</div>
+                                    <div>Alphabet Inc.</div>
+                                </div>
+                            </td>
+                            <td>$135.78</td>
+                            <td class="negative">-0.32%</td>
+                            <td>20</td>
+                            <td>$2,715.60</td>
+                            <td>
+                                <button class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem;">Trade</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </section>
-    
-    <!-- Top Movers Section -->
-    <section class="py-20 px-4">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16 reveal-element">
-                <h2 class="text-4xl md:text-5xl font-bold mb-6 gradient-text">Today's Top Movers</h2>
-                <p class="text-xl text-gray-300">Real-time market leaders and trending stocks</p>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-8">
-                <!-- Top Gainers -->
-                <div class="glass-card p-6 reveal-element">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-2xl font-bold text-green-400">Top Gainers</h3>
-                        <span class="market-indicator market-up">📈</span>
-                    </div>
-                    <div class="space-y-4" id="topGainers">
-                        <!-- Populated by JavaScript -->
-                    </div>
-                </div>
-                
-                <!-- Top Losers -->
-                <div class="glass-card p-6 reveal-element">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-2xl font-bold text-red-400">Top Losers</h3>
-                        <span class="market-indicator market-down">📉</span>
-                    </div>
-                    <div class="space-y-4" id="topLosers">
-                        <!-- Populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Market Data Visualization -->
-    <section class="py-20 px-4">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16 reveal-element">
-                <h2 class="text-4xl md:text-5xl font-bold mb-6 gradient-text">Market Intelligence</h2>
-                <p class="text-xl text-gray-300">Advanced data visualization and insights</p>
-            </div>
-            
-            <div class="glass-card p-8 reveal-element">
-                <div class="grid md:grid-cols-3 gap-8 mb-8">
-                    <div class="text-center">
-                        <div class="text-3xl font-bold gradient-text mb-2" id="sensexValue">₹67,847.23</div>
-                        <div class="text-gray-400">SENSEX</div>
-                        <div class="market-indicator market-up mt-2">+1.24%</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold gradient-text mb-2" id="niftyValue">₹20,123.45</div>
-                        <div class="text-gray-400">NIFTY 50</div>
-                        <div class="market-indicator market-up mt-2">+0.89%</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold gradient-text mb-2" id="volumeValue">₹2.4T</div>
-                        <div class="text-gray-400">Trading Volume</div>
-                        <div class="market-indicator market-up mt-2">+15.6%</div>
-                    </div>
-                </div>
-                
-                <div class="h-96" id="marketChart">
-                    <!-- Chart will be rendered here -->
-                </div>
-            </div>
-        </div>
-    </section>
-    
+
     <!-- Footer -->
-    <footer class="py-12 px-4 border-t border-gray-800">
-        <div class="max-w-6xl mx-auto text-center">
-            <div class="mb-8">
-                <h3 class="text-2xl font-bold gradient-text mb-4">StockAnalyzer Pro</h3>
-                <p class="text-gray-400 max-w-2xl mx-auto">
-                    Advanced financial intelligence platform for modern investors. Real-time data, AI insights, and comprehensive analysis tools.
-                </p>
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>StockVision Pro</h3>
+                    <p>Advanced stock analysis and portfolio management tools for modern investors.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Products</h3>
+                    <ul>
+                        <li><a href="#">Stock Analyzer</a></li>
+                        <li><a href="#">Portfolio Manager</a></li>
+                        <li><a href="#">Market Screener</a></li>
+                        <li><a href="#">Research Reports</a></li>
+                        <li><a href="#">API Access</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="#">Learning Center</a></li>
+                        <li><a href="#">Market News</a></li>
+                        <li><a href="#">Investment Strategies</a></li>
+                        <li><a href="#">Webinars</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
             </div>
-            <div class="border-t border-gray-800 pt-8">
-                <p class="text-gray-500">© 2025 StockAnalyzer Pro. All rights reserved. Built with modern web technologies.</p>
+            
+            <div class="copyright">
+                &copy; 2023 StockVision Pro. All rights reserved.
             </div>
         </div>
     </footer>
-    
-    <script src="main.js"></script>
+
+    <script>
+        // Simple animations and interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add animation to cards on scroll
+            const cards = document.querySelectorAll('.card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'fadeInUp 0.8s ease-out forwards';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                observer.observe(card);
+            });
+            
+            // Simple chart simulation (in a real app, you would use Chart.js or similar)
+            const chartContainers = document.querySelectorAll('.chart-container');
+            chartContainers.forEach(container => {
+                // Create a simple SVG chart simulation
+                const svgNS = "http://www.w3.org/2000/svg";
+                const svg = document.createElementNS(svgNS, "svg");
+                svg.setAttribute("width", "100%");
+                svg.setAttribute("height", "100%");
+                svg.setAttribute("viewBox", "0 0 100 100");
+                
+                // Create a simple line chart
+                const path = document.createElementNS(svgNS, "path");
+                let pathData = "M 0,50 ";
+                for (let i = 1; i <= 10; i++) {
+                    const x = i * 10;
+                    const y = 50 - (Math.random() * 40 - 20);
+                    pathData += `L ${x},${y} `;
+                }
+                path.setAttribute("d", pathData);
+                path.setAttribute("stroke", "#4cc9f0");
+                path.setAttribute("stroke-width", "2");
+                path.setAttribute("fill", "none");
+                path.setAttribute("stroke-linecap", "round");
+                path.setAttribute("stroke-linejoin", "round");
+                
+                svg.appendChild(path);
+                container.appendChild(svg);
+            });
+            
+            // Add hover effect to table rows
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(5px)';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+        });
+    </script>
 </body>
 </html>
